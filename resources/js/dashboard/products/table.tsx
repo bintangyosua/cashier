@@ -13,8 +13,20 @@ const columns: ColumnType[] = [
         label: 'Name',
     },
     {
-        key: 'description',
-        label: 'Description',
+        key: 'sku',
+        label: 'SKU',
+    },
+    {
+        key: 'price',
+        label: 'Price',
+    },
+    {
+        key: 'stock',
+        label: 'Stock',
+    },
+    {
+        key: 'category',
+        label: 'Category',
     },
     {
         key: 'actions',
@@ -22,15 +34,15 @@ const columns: ColumnType[] = [
     },
 ];
 
-export default function CategoriesTable() {
-    const { categories } = usePage().props as unknown as {
-        categories: {
+export default function ProductsTable() {
+    const { products } = usePage().props as unknown as {
+        products: {
             id: number;
             name: string;
             description: string;
         }[];
     };
-    const [source] = useState(categories);
+    const [source] = useState(products);
 
     return (
         <div className="w-full overflow-x-auto">

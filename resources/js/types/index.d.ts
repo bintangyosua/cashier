@@ -1,6 +1,13 @@
 import { LucideIcon } from 'lucide-react';
 import type { Config } from 'ziggy-js';
 
+export type ColumnType = {
+    key: string;
+    label: string;
+    category?: boolean;
+    image?: boolean;
+};
+
 export interface Auth {
     user: User;
 }
