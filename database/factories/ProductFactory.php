@@ -22,7 +22,7 @@ class ProductFactory extends Factory
             'sku' => fake()->numberBetween(10000, 99999),
             'price' => fake()->numberBetween(5, 50) * 10000,
             'stock' => fake()->numberBetween(10, 50),
-            'category_id' => Category::inRandomOrder()->value('id'),
+            'category_id' => Category::inRandomOrder()->first()?->id ?? Category::factory(),
         ];
     }
 }
