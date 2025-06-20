@@ -3,6 +3,7 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\TransactionItemController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingController;
@@ -50,7 +51,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('', [SettingController::class, 'index'])->name('settings.index');
             Route::put('', [SettingController::class, 'update'])->name('settings.update');
         });
-        
+
+        Route::prefix('transactions/items')->group(function () {
+            Route::put('{id}', [TransactionItemController::class, 'update'])->name('transaction-items.update');
+            Route::delete('{id}', [TransactionItemController::class, 'destroy'])->name('transaction-items.destroy');
+        });
     });
 });
 
