@@ -3,6 +3,9 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -12,9 +15,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('dashboard')->group(function () {
-        Route::get('', function () {
-            return Inertia::render('dashboard');
-        })->name('dashboard');
+        Route::get('', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::prefix('categories')->group(function () {
             Route::get('', [CategoryController::class, 'index'])->name('categories.index');
@@ -41,6 +42,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::post('', [TransactionController::class, 'store'])->name('transactions.store'); // simpan transaksi
             Route::get('history', [TransactionController::class, 'history'])->name('transactions.history'); // riwayat transaksi
         });
+        
+        Route::resource('users', UserController::class);
     });
 });
 
