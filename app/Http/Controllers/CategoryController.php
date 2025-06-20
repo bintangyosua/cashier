@@ -13,8 +13,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
+        $categories = Category::latest()->get(['id', 'name']);
+
         return Inertia::render('dashboard/categories/page', [
-            'categories' => Category::all()
+            'categories' => $categories
         ]);
     }
 
@@ -23,7 +25,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        return Inertia::render('dashboard/categories/create');
     }
 
     /**
@@ -31,7 +33,13 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:100|unique:categories,name',
+        ]);
+
+        Category::create($request->only('name'));
+
+        return redirect()->route('categories.index')->with('success', 'Kategori berhasil ditambahkan.');
     }
 
     /**
@@ -39,7 +47,11 @@ class CategoryController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $category = Category::with('products')->findOrFail($id);
+
+        return Inertia::render('dashboard/categories/show', [
+            'category' => $category
+        ]);
     }
 
     /**
@@ -47,7 +59,11 @@ class CategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        return Inertia::render('dashboard/categories/edit', [
+            'category' => $category
+        ]);
     }
 
     /**
@@ -55,7 +71,15 @@ class CategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:100|unique:categories,name,' . $category->id,
+        ]);
+
+        $category->update($request->only('name'));
+
+        return redirect()->route('categories.index')->with('success', 'Kategori berhasil diperbarui.');
     }
 
     /**
@@ -63,6 +87,9 @@ class CategoryController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $category->delete();
+
+        return redirect()->route('categories.index')->with('success', 'Kategori berhasil dihapus.');
     }
 }
