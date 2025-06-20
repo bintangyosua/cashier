@@ -7,6 +7,7 @@ use App\Http\Controllers\TransactionItemController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ReportController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -56,6 +57,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::put('{id}', [TransactionItemController::class, 'update'])->name('transaction-items.update');
             Route::delete('{id}', [TransactionItemController::class, 'destroy'])->name('transaction-items.destroy');
         });
+
+        Route::prefix('reports')->group(function () {
+            Route::get('', [ReportController::class, 'index'])->name('reports.index');
+        });
+        
     });
 });
 
