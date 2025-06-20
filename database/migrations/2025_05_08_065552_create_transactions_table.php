@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('total', 15, 2);
             $table->enum('payment_method', ['cash', 'transfer', 'qris']);
-            $table->enum('status', ['completed', 'voided'])->default('completed');
+            $table->enum('status', ['draft', 'paid', 'void'])->default('paid');
             $table->timestamps();
             $table->softDeletes(); // SoftDeletes aktif
         });
