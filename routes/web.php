@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SettingController;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -44,6 +45,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
         
         Route::resource('users', UserController::class);
+
+        Route::prefix('settings')->group(function () {
+            Route::get('', [SettingController::class, 'index'])->name('settings.index');
+            Route::put('', [SettingController::class, 'update'])->name('settings.update');
+        });
+        
     });
 });
 
