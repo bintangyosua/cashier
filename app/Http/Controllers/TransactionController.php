@@ -29,11 +29,13 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'items' => 'required|array',
+            'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'payment_method' => 'required|string|in:tunai,transfer,qris',
         ]);
+
+        DB::commit(); // jika semua transaksi sukses
 
         DB::beginTransaction();
 
