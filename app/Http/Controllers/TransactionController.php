@@ -44,7 +44,7 @@ class TransactionController extends Controller
                 'user_id' => auth()->id(),
                 'total' => 0, // akan dihitung nanti
                 'payment_method' => $validated['payment_method'],
-                'status' => 'draft',
+                'status' => 'paid',
             ]);
 
             $total = 0;
