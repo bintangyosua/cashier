@@ -101,5 +101,16 @@ class TransactionController extends Controller
         ]);
     }
 
-    
+    public function update(Request $request, $id) 
+    {
+        $transaction = Transaction::findOrFail($id);
+
+        if ($transaction->status !== 'draft') {
+            return back()->withErrors('Transaksi hanya bisa diedit saat berstatus draft.');
+        }
+
+        // Validasi dan logika update seperti total, item, dst.
+        
+        return redirect()->route('transactions.history')->with('success', 'Transaksi berhasil diperbarui.');
+    }
 }
