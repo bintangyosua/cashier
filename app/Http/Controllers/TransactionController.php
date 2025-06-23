@@ -44,6 +44,7 @@ class TransactionController extends Controller
                 'user_id' => auth()->id(),
                 'total' => 0, // akan dihitung nanti
                 'payment_method' => $validated['payment_method'],
+                'status' => 'draft',
             ]);
 
             $total = 0;
@@ -101,36 +102,84 @@ class TransactionController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id) 
+    public function update(Request $request, string $id)
     {
-        $transaction = Transaction::findOrFail($id);
+        $transaction = Transaction::with('items')->findOrFail($id);
 
         if ($transaction->status !== 'draft') {
-            return back()->withErrors('Transaksi hanya bisa diedit saat berstatus draft.');
+            return back()->withErrors('Hanya transaksi berstatus draft yang dapat diperbarui.');
         }
 
-        // Validasi dan logika update seperti total, item, dst.
+        $validated = $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'payment_method' => 'required|string|in:cash,transfer,qris',
+        ]);
 
-        return redirect()->route('transactions.history')->with('success', 'Transaksi berhasil diperbarui.');
+        DB::beginTransaction();
+
+        try {
+            // Kembalikan stok dari item sebelumnya
+            foreach ($transaction->items as $item) {
+                $item->product->increment('stock', $item->quantity);
+                $item->delete();
+            }
+
+            $total = 0;
+            foreach ($validated['items'] as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                $subtotal = $product->price * $item['quantity'];
+                $total += $subtotal;
+
+                TransactionItem::create([
+                    'transaction_id' => $transaction->id,
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $product->price,
+                    'subtotal' => $subtotal,
+                ]);
+
+                $product->decrement('stock', $item['quantity']);
+            }
+
+            $transaction->update([
+                'total' => $total,
+                'payment_method' => $validated['payment_method'],
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('transactions.history')->with('success', 'Transaksi berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors('Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
 
-    public function void($id)
+
+    public function void(string $id)
     {
-        $transaction = Transaction::findOrFail($id);
+        $transaction = Transaction::with('items.product')->findOrFail($id);
 
         if ($transaction->status === 'voided') {
-            return back()->withErrors('Transaksi sudah dibatalkan sebelumnya.');
+            return back()->withErrors('Transaksi sudah dibatalkan.');
         }
 
-        // Ubah status transaksi
+        if ($transaction->status !== 'draft' && $transaction->status !== 'paid') {
+            return back()->withErrors('Transaksi tidak dapat dibatalkan.');
+        }
+
         $transaction->status = 'voided';
         $transaction->save();
 
+        // Kembalikan stok produk
         foreach ($transaction->items as $item) {
             $item->product->increment('stock', $item->quantity);
         }
 
         return redirect()->route('transactions.history')->with('success', 'Transaksi berhasil dibatalkan.');
     }
+
 
 }
