@@ -110,7 +110,27 @@ class TransactionController extends Controller
         }
 
         // Validasi dan logika update seperti total, item, dst.
-        
+
         return redirect()->route('transactions.history')->with('success', 'Transaksi berhasil diperbarui.');
     }
+
+    public function void($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+
+        if ($transaction->status === 'voided') {
+            return back()->withErrors('Transaksi sudah dibatalkan sebelumnya.');
+        }
+
+        // Ubah status transaksi
+        $transaction->status = 'voided';
+        $transaction->save();
+
+        foreach ($transaction->items as $item) {
+            $item->product->increment('stock', $item->quantity);
+        }
+
+        return redirect()->route('transactions.history')->with('success', 'Transaksi berhasil dibatalkan.');
+    }
+
 }

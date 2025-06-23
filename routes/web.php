@@ -34,16 +34,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('', [ProductController::class, 'index'])->name('products.index');
             Route::get('create', [ProductController::class, 'create'])->name('products.create');
             Route::post('', [ProductController::class, 'store'])->name('products.store');
-            Route::get('{product}', [ProductController::class, 'show'])->name('products.show'); // optional
+            Route::get('{product}', [ProductController::class, 'show'])->name('products.show'); 
             Route::get('{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
             Route::put('{product}', [ProductController::class, 'update'])->name('products.update');
             Route::delete('{product}', [ProductController::class, 'destroy'])->name('products.destroy');
         });
 
         Route::prefix('transactions')->group(function () {
-            Route::get('', [TransactionController::class, 'index'])->name('transactions.index'); // POS
-            Route::post('', [TransactionController::class, 'store'])->name('transactions.store'); // simpan transaksi
-            Route::get('history', [TransactionController::class, 'history'])->name('transactions.history'); // riwayat transaksi
+            Route::get('', [TransactionController::class, 'index'])->name('transactions.index'); 
+            Route::post('', [TransactionController::class, 'store'])->name('transactions.store'); 
+            Route::get('history', [TransactionController::class, 'history'])->name('transactions.history'); 
+            Route::put('/transactions/{id}/void', [TransactionController::class, 'void'])->name('transactions.void');
         });
         
         Route::resource('users', UserController::class);
@@ -61,7 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::prefix('reports')->group(function () {
             Route::get('', [ReportController::class, 'index'])->name('reports.index');
         });
-        
+         
     });
 });
 
